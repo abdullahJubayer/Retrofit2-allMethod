@@ -5,6 +5,7 @@ import retrofit2.http.*
 
 interface Api {
 
+    //GET METHOD
     @GET("posts")
     fun getPosts():Call<List<Post>>
 
@@ -29,4 +30,33 @@ interface Api {
 
     @GET
     fun getComments(@Url url:String ):Call<List<Comment>>
+
+    //GET METHOD
+
+    //POST METHOD
+    @POST("posts")
+    fun createPost(@Body post: Post):Call<Post>
+
+    //TODO NOT WORK
+    @POST("posts")
+    fun createPost(@Body post: List<Post>):Call<List<Post>>
+
+    @FormUrlEncoded
+    @POST("posts")
+    fun createPost(@Field("userId") userId: Int,@Field("title") title:String,@Field("body")body:String):Call<Post>
+
+    @FormUrlEncoded
+    @POST("posts")
+    fun createPost(@FieldMap post:Map<String,String>):Call<Post>
+    //POST METHOD
+
+    @PUT("posts/{id}")
+    fun updatePost(@Path("id") id:Int, @Body post: Post):Call<Post>
+
+    @FormUrlEncoded
+    @PATCH("posts/{id}")
+    fun updatePostField(@Path("id") id:Int,@Field("title") title: String):Call<Post>
+
+    @PUT("posts/{id}")
+    fun deletePost(@Path("id") id:Int):Call<Void>
 }

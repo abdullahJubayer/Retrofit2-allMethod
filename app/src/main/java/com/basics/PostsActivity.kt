@@ -20,7 +20,7 @@ class PostsActivity : AppCompatActivity() {
         textView=findViewById(R.id.text_view)
         apiService=RetrofitBuilder.apiService
 
-//        getSpecificOrderPost()
+        getSpecificOrderPost()
 //        getSpecificOrderWithArrayParameterPost()
 //        getPostWithMap()
 //        getPostWithURL()
@@ -30,7 +30,7 @@ class PostsActivity : AppCompatActivity() {
 //        createPostWithFieldMapAnnotation()
 //        updatePost()
 //        updatePostField()
-        deletePost()
+//        deletePost()
     }
 
     private fun getPost(){

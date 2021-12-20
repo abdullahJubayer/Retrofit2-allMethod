@@ -57,6 +57,21 @@ interface Api {
     @PATCH("posts/{id}")
     fun updatePostField(@Path("id") id:Int,@Field("title") title: String):Call<Post>
 
-    @PUT("posts/{id}")
+    @DELETE("posts/{id}")
     fun deletePost(@Path("id") id:Int):Call<Void>
+
+    @Headers("Static Header : 1234")
+    @PUT("posts/{id}")
+    fun updatePostWithHeaders(@Path("id") id:Int, @Body post: Post):Call<Post>
+
+    //TODO Not Working
+//    @Headers({"Static-Header: 1234", "Static-Header2: 456"})
+//    @PUT("posts/{id}")
+//    fun updatePostWithHeadersArray(@Path("id") id:Int, @Body post: Post):Call<Post>
+
+    @PUT("posts/{id}")
+    fun updatePostWithHeader(@Header("dynamic-header") heder:String, @Path("id") id:Int, @Body post: Post):Call<Post>
+
+    @PUT("posts/{id}")
+    fun updatePostWithHeaderMap(@HeaderMap headers:Map<String,String>, @Path("id") id:Int, @Body post: Post):Call<Post>
 }

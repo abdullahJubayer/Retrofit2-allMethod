@@ -1,5 +1,7 @@
 package com.basics
 
+import okhttp3.MultipartBody
+import okhttp3.RequestBody
 import retrofit2.Call
 import retrofit2.http.*
 
@@ -74,4 +76,8 @@ interface Api {
 
     @PUT("posts/{id}")
     fun updatePostWithHeaderMap(@HeaderMap headers:Map<String,String>, @Path("id") id:Int, @Body post: Post):Call<Post>
+
+    @Multipart
+    @POST
+    fun uploadImage(@Url uploadUrl:String, @Part image: MultipartBody.Part, @Part("desc") desc: RequestBody):Call<UploadResponse>
 }

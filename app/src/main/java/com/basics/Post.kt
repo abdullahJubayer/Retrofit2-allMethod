@@ -14,3 +14,9 @@ data class Comment(
     val email:String,
     val body:String
 )
+
+data class UploadResponse(
+    val error :Boolean,
+    val message:String,
+    val image:String?
+)

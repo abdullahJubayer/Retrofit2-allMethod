@@ -8,43 +8,46 @@ import okio.BufferedSink
 import java.io.File
 import java.io.FileInputStream
 
-class UploadRequest(private val file:File,private val contentType:String,private val uploadCallback: UploadCallback) :
-    RequestBody() {
-
-
-    interface UploadCallback{
-        fun onProgressUpdate(percentages:Int)
-    }
-
-    inner class ProgressUpdate(private val upload: Long, private val length: Long) :Runnable{
-        override fun run() {
-            uploadCallback.onProgressUpdate((100*upload/length).toInt())
-        }
-
-    }
+class UploadRequest(
+    private val file: File,
+    private val contentType: String,
+    private val callback: UploadCallback
+) : RequestBody() {
 
     override fun contentType() = "$contentType/*".toMediaTypeOrNull()
 
+    override fun contentLength() = file.length()
+
     override fun writeTo(sink: BufferedSink) {
-        val length=file.length()
-        val buffer=ByteArray(DEFAULT_BUFFER_SIZE)
-        val fileInputStream= FileInputStream(file)
-        var upload=0L
-
+        val length = file.length()
+        val buffer = ByteArray(DEFAULT_BUFFER_SIZE)
+        val fileInputStream = FileInputStream(file)
+        var uploaded = 0L
         fileInputStream.use { inputStream ->
-            var read:Int
-            val handler= Handler(Looper.getMainLooper())
-
-            while (fileInputStream.read(buffer).also { read = it } != -1){
-                handler.post(ProgressUpdate(upload,length))
-                upload+=read
-                sink.write(buffer,0,read)
+            var read: Int
+            val handler = Handler(Looper.getMainLooper())
+            while (inputStream.read(buffer).also { read = it } != -1) {
+                handler.post(ProgressUpdater(uploaded, length))
+                uploaded += read
+                sink.write(buffer, 0, read)
             }
         }
-
     }
 
-    companion object{
-        const val DEFAULT_BUFFER_SIZE=1048
+    interface UploadCallback {
+        fun onProgressUpdate(percentage: Int)
+    }
+
+    inner class ProgressUpdater(
+        private val uploaded: Long,
+        private val total: Long
+    ) : Runnable {
+        override fun run() {
+            callback.onProgressUpdate((100 * uploaded / total).toInt())
+        }
+    }
+
+    companion object {
+        private const val DEFAULT_BUFFER_SIZE = 2048
     }
 }

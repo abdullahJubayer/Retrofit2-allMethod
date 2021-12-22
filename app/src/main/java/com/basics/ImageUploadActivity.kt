@@ -4,12 +4,14 @@ import android.annotation.SuppressLint
 import android.content.ContentResolver
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.OpenableColumns
 import android.view.View
 import android.widget.Button
 import android.widget.ImageView
 import android.widget.ProgressBar
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.constraintlayout.widget.ConstraintLayout
 import com.google.android.material.snackbar.Snackbar
@@ -18,6 +20,7 @@ import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -56,22 +59,25 @@ class ImageUploadActivity : AppCompatActivity(), UploadRequest.UploadCallback {
         }
     }
 
+    @RequiresApi(Build.VERSION_CODES.KITKAT)
     private fun uploadImage() {
         if (imageUri==null){
             root_layout.snackbar("Image Should Not be Null")
             return
         }
 
-        val parseFileDescriptor=contentResolver.openFileDescriptor(imageUri!!,"r")?:return
+        val parseFileDescriptor=contentResolver.openFileDescriptor(imageUri!!,"r",null)?:return
         val inputStream =FileInputStream(parseFileDescriptor.fileDescriptor)
         val originalFile=File(cacheDir,contentResolver.getFileName(imageUri!!),)
         val outputStream=FileOutputStream(originalFile)
         inputStream.copyTo(outputStream)
 
+        progressBar.progress=0
         val body=UploadRequest(originalFile,"image",this)
         RetrofitBuilder.apiService.uploadImage("http://192.168.94.2:8012/ImageUploader/Api.php?apicall=upload",
                     MultipartBody.Part.createFormData("image",originalFile.name,body),
-                    RequestBody.create("multipart/form-data".toMediaTypeOrNull(),"Image to Upload"))
+            "json".toRequestBody("multipart/form-data".toMediaTypeOrNull())
+        )
             .enqueue(object :Callback<UploadResponse> {
                 override fun onResponse(call: Call<UploadResponse>, response: Response<UploadResponse>) {
                     progressBar.progress=100
